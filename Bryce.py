@@ -80,6 +80,8 @@ async def reset_state_from_remote(server, url):
     except Exception:
         return False
     await commit_state(state, server)
+    if os.path.exists(TEMP_PATH.format(server.id)):
+        os.remove(TEMP_PATH.format(server.id))
     return True
 
 
@@ -119,45 +121,46 @@ async def on_ready():
 @client.event
 async def on_message(message):
     server = message.server
-    if message.content.startswith("!about"):
+    command = message.content.lower().strip()
+    if command.startswith("!about"):
         await client.send_message(message.channel, INSTRUCTIONS)
-    if message.content.upper().endswith(' IT UP!'):
+    if command.endswith(' it up!'):
         await client.send_message(message.channel, 'ACK -> Executing subroutine \'Good Cop\'')
         state = await log_state(server, message.channel)
         if state is not None:
             for key in state:
-                state[key] = message.content[:8]
+                state[key] = message.content.strip()[:-7]
             await commit_state(state, server)
             await client.send_message(message.channel, 'Execution Complete')
 
         else:
             await client.send_message(message.channel, 'Execution failed; no targets found or state already exists')
+    if command.startswith("!restore"):
+        if command == "!restore":
+            await client.send_message(message.channel, 'ACK -> Executing subroutine \'Bad Cop\'')
+            if not await reset_state_from_local(server):
+                await client.send_message(message.channel, 'State reset failed; Reason, no current state available')
 
-    if message.content.startswith("KILL THE LIGHTS"):
-        await client.send_message(message.channel, 'ACK -> Executing subroutine \'Bad Cop\'')
-        if not await reset_state_from_local(server):
-            await client.send_message(message.channel, 'State reset failed; Reason, no current state available')
-
-    if message.content.startswith("!restore from"):
-        command_end = message.content.strip("!restore from").strip()
-        regex = re.compile(
-            r'^(?:http|ftp)s?://'  # http:// or https://
-            r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
-            r'localhost|'  # localhost...
-            r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
-            r'(?::\d+)?'  # optional port
-            r'(?:/?|[/?]\S+)$', re.IGNORECASE)
-        if re.match(regex, command_end):
-            await client.send_message(message.channel, "ACK -> Attempting restore from {}".format(command_end))
-            if not await reset_state_from_remote(server, command_end):
-                await client.send_message(message.channel, "OP failed; Bad file")
-
-        elif message.attachments:
-            for attachment in message.attachments:
-                await client.send_message(message.channel,
-                                          "ACK -> Attempting restore from attachment at {}".format(attachment.url))
-                if not await reset_state_from_remote(server, attachment):
+        if command.startswith("!restore from"):
+            command_end = message.content.strip("!restore from").strip()
+            regex = re.compile(
+                r'^(?:http|ftp)s?://'  # http:// or https://
+                r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
+                r'localhost|'  # localhost...
+                r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+                r'(?::\d+)?'  # optional port
+                r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+            if re.match(regex, command_end):
+                await client.send_message(message.channel, "ACK -> Attempting restore from {}".format(command_end))
+                if not await reset_state_from_remote(server, command_end):
                     await client.send_message(message.channel, "OP failed; Bad file")
+
+            elif message.attachments:
+                for attachment in message.attachments:
+                    await client.send_message(message.channel,
+                                              "ACK -> Attempting restore from attachment at {}".format(attachment.url))
+                    if not await reset_state_from_remote(server, attachment):
+                        await client.send_message(message.channel, "OP failed; Bad file")
 
 
 try:
