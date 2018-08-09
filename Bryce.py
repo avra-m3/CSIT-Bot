@@ -161,10 +161,14 @@ async def on_message(message):
                                               "ACK -> Attempting restore from attachment at {}".format(attachment.url))
                     if not await reset_state_from_remote(server, attachment):
                         await client.send_message(message.channel, "OP failed; Bad file")
+    if "bryce" in command:
+        if message.author != server.me:
+            await client.send_message(message.channel, "I love Bryce, don't you?")
+            await client.add_reaction(message, "❤")
 
 
 try:
-    client.run('NDc2NjYwNzc3MzU3NjcyNDU4.Dkw49Q.ScVynBxsAUugng1kib-pTSssjTY')
+    client.run(os.getenv('AUTH'))
 finally:
     print("Exiting")
     client.close()
