@@ -19,7 +19,7 @@ COMMANDS:
 @prevent_self_calls
 @log_access("about")
 async def about(message, client):
-    await client.send_message(message.server, INSTRUCTIONS)
+    await client.send_message(message.channel, INSTRUCTIONS)
 
 
 @prevent_self_calls
@@ -30,7 +30,7 @@ async def set_all(message, client):
     new_nick = message.clean_content.strip()[:-7]
     if len(new_nick) < 32:
         state, file_name = await log_state(server)
-        with open(file_name, "r") as output:
+        with open(file_name, "rb") as output:
             await client.send_file(message.channel, output)
         if state is not None:
             for key in state:
