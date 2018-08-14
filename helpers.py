@@ -16,12 +16,12 @@ def prevent_self_calls(fn):
 
 def log_access_admin(command):
     def decorator(fn):
-        async def wrapper(message, *args, **kwargs):
+        async def wrapper(message, client, *args, **kwargs):
             if not message.author.server_permissions.administrator:
-                access_denied(command, message)
+                await access_denied(command, message, client)
                 return
             access_granted(command, message)
-            return await fn(message, *args, **kwargs)
+            return await fn(message, client, *args, **kwargs)
 
         return wrapper
 
@@ -39,8 +39,10 @@ def log_access(command):
     return decorator
 
 
-def access_denied(command, message):
+async def access_denied(command, message, client):
     print("[DENIED] {} called by {} ('{}')".format(command, message.author, message.content))
+    await client.send_message(message.channel,
+                              "You do not have access to use this command (this access attempt has been recorded)")
 
 
 def access_granted(command, message):
