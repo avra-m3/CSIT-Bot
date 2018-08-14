@@ -66,7 +66,7 @@ async def log_state(server):
         return None, None
     with open(TEMP_PATH.format(server.id), "w+") as output:
         json.dump(state, output)
-    return state, output
+    return state, TEMP_PATH.format(server.id)
 
 
 def archive(file_path):
