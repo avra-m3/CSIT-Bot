@@ -1,8 +1,8 @@
 FROM python:3
-COPY requirements.txt /
-RUN pip install -r requirements.txt
-ADD *.py /
-CMD [ "python", "./Bryce.py" ]
-
-
+WORKDIR /app
+COPY requirements.txt /app
+RUN pip install -r /app/requirements.txt
+ADD . /app
+EXPOSE 80
+ENV AUTH ''
 
