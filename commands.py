@@ -26,8 +26,8 @@ async def about(message, client):
 @log_access_admin("set_all")
 async def set_all(message, client):
     server = message.server
-    await client.send_message(message.channel, 'ACK -> Executing subroutine \'Good Cop\'')
     new_nick = message.clean_content.strip()[:-7]
+    await client.send_message(message.channel, 'Setting all nick-names to {}'.format(new_nick))
     if len(new_nick) < 32:
         state, file_name = await log_state(server)
         with open(file_name, "rb") as output:
@@ -52,7 +52,7 @@ async def restore(message, client):
     command = message.content.lower().strip()
     server = message.server
     if command == "!restore":
-        await client.send_message(message.channel, 'ACK -> Executing subroutine \'Bad Cop\'')
+        await client.send_message(message.channel, 'Reverting nicknames to match local state')
         if not await reset_state_from_local(server, client):
             await client.send_message(message.channel, 'State reset failed; Reason, no current state available')
 
@@ -66,13 +66,13 @@ async def restore(message, client):
             r'(?::\d+)?'  # optional port
             r'(?:/?|[/?]\S+)$', re.IGNORECASE)
         if re.match(regex, command_end):
-            await client.send_message(message.channel, "ACK -> Attempting restore from {}".format(command_end))
+            await client.send_message(message.channel, "Reverting nicknames to match remote state @'{}'".format(command_end))
             if not await reset_state_from_remote(server, command_end, client):
                 await client.send_message(message.channel, "OP failed; Bad file")
         elif message.attachments:
             for attachment in message.attachments:
                 await client.send_message(message.channel,
-                                          "ACK -> Attempting restore from attachment at {}".format(
+                                          "Reverting nicknames to match attachment state @'{}'".format(
                                               attachment.url))
                 if not await reset_state_from_remote(server, attachment, client):
                     await client.send_message(message.channel, "OP failed; Bad file")

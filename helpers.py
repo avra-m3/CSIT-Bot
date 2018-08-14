@@ -42,7 +42,8 @@ def log_access(command):
 async def access_denied(command, message, client):
     print("[DENIED] {} called by {} ('{}')".format(command, message.author, message.content))
     await client.send_message(message.channel,
-                              "You do not have access to use this command (this access attempt has been recorded)")
+                              "{} is not in the sudoers file (this incident will be reported)".format(
+                                  message.author.mention))
 
 
 def access_granted(command, message):
