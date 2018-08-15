@@ -46,7 +46,7 @@ async def on_message(message):
 
 
 try:
-    client.run(os.getenv('AUTH'))
+    client.run(os.getenv('AUTH'), port=5012)
 finally:
     print("Exiting")
     client.close()
