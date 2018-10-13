@@ -5,6 +5,15 @@ import time
 import requests
 
 
+def ignore_bot_calls(fn):
+    async def wrapper(message, client, *args, **kwargs):
+        if message.author.bot:
+            return
+        return await fn(message, client, *args, **kwargs)
+
+    return wrapper
+
+
 def prevent_self_calls(fn):
     async def wrapper(message, client, *args, **kwargs):
         if message.author.id == client.user.id:

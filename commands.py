@@ -1,7 +1,9 @@
 import re
 
+from Chat import Commands
+from Chat.Classes import ChatCommand
 from helpers import log_access, log_access_admin, log_state, reset_state_from_local, reset_state_from_remote, \
-    commit_state, prevent_self_calls
+    commit_state, prevent_self_calls, ignore_bot_calls
 
 INSTRUCTIONS = """USING THE BRYCE BOT
 COMMANDS:
@@ -66,7 +68,8 @@ async def restore(message, client):
             r'(?::\d+)?'  # optional port
             r'(?:/?|[/?]\S+)$', re.IGNORECASE)
         if re.match(regex, command_end):
-            await client.send_message(message.channel, "Reverting nicknames to match remote state @'{}'".format(command_end))
+            await client.send_message(message.channel,
+                                      "Reverting nicknames to match remote state @'{}'".format(command_end))
             if not await reset_state_from_remote(server, command_end, client):
                 await client.send_message(message.channel, "OP failed; Bad file")
         elif message.attachments:
@@ -80,16 +83,25 @@ async def restore(message, client):
             await client.send_message(message.channel, "OP failed; Bad file")
 
 
+commands = [
+    ChatCommand("bryce", Commands.bryce_Bryce).alias("Bryce", required=True).blocks().is_case_sensitive(),
+    ChatCommand("bryce", Commands.bryce).is_case_sensitive(),
+    ChatCommand("Bryce", Commands.bryce).is_case_sensitive(),
+    ChatCommand("token", Commands.token).alias("auth"),
+    ChatCommand("boat", Commands.boat),
+    ChatCommand("<@", Commands.bryce_mention).alias(">", required=True)
+]
+
+
 @prevent_self_calls
+@ignore_bot_calls
 async def mention(message, client):
-    command = message.content.lower().strip()
-    server = message.server
-    if "bryce" in command:
-        if message.author != server.me:
-            await client.send_message(message.channel, "I love Bryce, don't you?")
-            await client.add_reaction(message, "❤")
-    if "token" in command or "auth" in command:
-        if message.author != server.me:
-            await client.send_message(message.channel, "Hide your tokens kiddos!")
-            await client.add_reaction(message, "🐱")
-            await client.add_reaction(message, "💻")
+    # Code Golf :)
+    # [c(message=message.content, server=server, client=client) for c in commands if
+    #  c.foundin(message.content)]
+
+    for command in commands:
+        if command.found_in(message.content):
+            await command(message=message.content, server=message.server, client=client, env=message)
+            if command.blocking:
+                return
