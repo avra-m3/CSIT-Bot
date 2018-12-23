@@ -1,0 +1,10 @@
+version: '2'
+services:
+  bot:
+    build: .
+    ports:
+     - "5012:5012"
+    volumes:
+     - .:/app
+    env_file: 
+     - .env
