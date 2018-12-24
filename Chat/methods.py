@@ -1,5 +1,7 @@
 import re
 
+from discord import Forbidden
+
 from helpers import prevent_self_calls, log_access_admin, log_state, commit_state, reset_state_from_local, \
     reset_state_from_remote, log_access
 
@@ -120,3 +122,18 @@ async def restore(env, client):
                     await client.send_message(env.channel, "OP failed; Bad file")
         else:
             await client.send_message(env.channel, "OP failed; Bad file")
+
+
+@prevent_self_calls
+@log_access("IWannaBeLike")
+async def i_wanna_be_like(env, client):
+    message = env.content
+    matcher = re.match("[I|i] wan(?:na|'t|t) (?:to)? be like <@!?(\d+)>", message)
+    user_id = matcher.groups()[0]
+    user_info = await client.get_user_info(user_id)
+    try:
+        await client.change_nickname(env.author, user_info.name)
+    except Forbidden:
+        await client.send_message(env.channel, "Can't touch that!")
+        return
+    await client.send_message(env.channel, "OK!")
