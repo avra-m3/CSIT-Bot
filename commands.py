@@ -5,7 +5,7 @@ from Chat.Classes import ChatCommand
 from helpers import log_access, log_access_admin, log_state, reset_state_from_local, reset_state_from_remote, \
     commit_state, prevent_self_calls, ignore_bot_calls
 
-INSTRUCTIONS = """USING THE BRYCE BOT
+INSTRUCTIONS_LEGACY = """USING THE BRYCE BOT
 COMMANDS:
     !about - You know how to use this one already clearly
     Requires the user be an administrator
@@ -19,9 +19,20 @@ COMMANDS:
 
 
 @prevent_self_calls
+async def helpme(message, client):
+    with open("helpme.desc") as description:
+        await client.send_message(message.channel, description.read())
+
+
+@prevent_self_calls
 @log_access("about")
 async def about(message, client):
-    await client.send_message(message.channel, INSTRUCTIONS)
+    try:
+        with open("about.desc") as description:
+            await client.send_message(message.channel, description.read())
+    except Exception as ex:
+        await client.send_message(message.channel, "Could not load description! (Using Legacy)")
+        await client.send_message(message.channel, INSTRUCTIONS_LEGACY)
 
 
 @prevent_self_calls

@@ -18,7 +18,7 @@ async def token(client, env):
 
 
 async def boat(client, env):
-    await client.send_message(env.channel, "Big Boat! (sign up now at https://tiny.cc/seaplusplus)")
+    await client.send_message(env.channel, "Big Boat Sailed! Keep an ear out for next years voyage!")
     await client.add_reaction(env, "⛵")
 
 
