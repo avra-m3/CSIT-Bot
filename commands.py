@@ -24,7 +24,7 @@ async def mention(message, client):
             Command(methods.token).listens_for("token").alias("auth"),
             Command(methods.boat).listens_for("boat"),
             Command(methods.bryce_mention).listens_for("<@!?\d+>", RegexMatcher),
-            Command(methods.i_wanna_be_like).listens_for("[I|i] wan(?:na|'t|t) (?:to)? be like <@!?(\d+)>", RegexMatcher)
+            Command(methods.i_wanna_be_like).listens_for("[I|i] wan(?:na|'t|t) (?:to )?be like <@!?(\d+)>", RegexMatcher)
         ]
     for command in commands:
         if command.compiler.matches(message.content):
