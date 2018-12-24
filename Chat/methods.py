@@ -128,7 +128,7 @@ async def restore(env, client):
 @log_access("IWannaBeLike")
 async def i_wanna_be_like(env, client):
     message = env.content
-    matcher = re.match("[I|i] wan(?:na|'t|t) (?:to)? be like <@!?(\d+)>", message)
+    matcher = re.match("[I|i] wan(?:na|'t|t) (?:to )?be like <@!?(\d+)>", message)
     user_id = matcher.groups()[0]
     user_info = await client.get_user_info(user_id)
     try:
