@@ -15,10 +15,10 @@ def ignore_bot_calls(fn):
 
 
 def prevent_self_calls(fn):
-    async def wrapper(message, client, *args, **kwargs):
-        if message.author.id == client.user.id:
+    async def wrapper(env, client, *args, **kwargs):
+        if env.author.id == client.user.id:
             return
-        return await fn(message, client, *args, **kwargs)
+        return await fn(env, client, *args, **kwargs)
 
     return wrapper
 

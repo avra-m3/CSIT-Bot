@@ -35,21 +35,7 @@ MENTION_REGEX = "^<@!?{}>"
 
 @client.event
 async def on_message(message):
-    matcher = MENTION_REGEX.format(client.user.id)
-    command = message.content.lower().strip()
-    # if command == "!update":
-    # await update(message)
-    print(command)
-    if command.startswith("!about") or command.startswith("❕ 🇦 🇧 🇴 🇺 🇹"):
-        await about(message, client)
-    elif command.endswith(' it up!'):
-        await set_all(message, client)
-    elif command.startswith("!restore"):
-        await restore(message, client)
-    elif re.search(matcher, message.content):
-        await helpme(message, client)
-    else:
-        await mention(message, client)
+    await mention(message, client)
 
 
 try:
