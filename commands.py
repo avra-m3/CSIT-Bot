@@ -82,9 +82,11 @@ async def restore(message: Message, client: Client):
 
 async def welcome_user(member: Member):
     channel = member.guild.system_channel
-    message = """Welcome {mention} to the CSIT Society discord server! 
-    We highly recommend hopping over to #introductions and saying hi {emoji}. Promise we don't bite (well, 
-    most of us anyway).""".format(mention=member.mention, emoji="👋")
+    message = """
+Welcome {mention}, you've joined the CSIT Society discord server! 
+
+We highly recommend hopping over to #introductions and saying hi {emoji}. Promise we don't bite (well, most of us anyway).
+""".format(mention=member.mention, emoji="👋")
     await channel.send(message)
 
 
