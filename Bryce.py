@@ -32,6 +32,11 @@ async def on_ready():
 
 
 @client.event
+async def on_member_join(member: discord.Member):
+    welcome_user(member)
+
+
+@client.event
 async def on_message(message: Message):
     command = message.content.lower().strip()
     # if command == "!update":
