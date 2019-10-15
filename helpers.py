@@ -1,8 +1,11 @@
 import json
 import os
 import time
+import traceback
+from functools import wraps
 
 import requests
+from discord import Message, Member
 
 
 def ignore_bot_calls(fn):
@@ -15,10 +18,11 @@ def ignore_bot_calls(fn):
 
 
 def prevent_self_calls(fn):
-    async def wrapper(message, client, *args, **kwargs):
-        if message.author.id == client.user.id:
+    @wraps(fn)
+    async def wrapper(message: Message, *args, **kwargs):
+        if message.author.id == message.guild.me:
             return
-        return await fn(message, client, *args, **kwargs)
+        return await fn(message, *args, **kwargs)
 
     return wrapper
 
@@ -26,7 +30,7 @@ def prevent_self_calls(fn):
 def log_access_admin(command):
     def decorator(fn):
         async def wrapper(message, client, *args, **kwargs):
-            if not message.author.server_permissions.administrator:
+            if not message.author.guild_permissions.administrator:
                 await access_denied(command, message, client)
                 return
             access_granted(command, message)
@@ -127,14 +131,17 @@ async def reset_state_from_remote(server, url, client):
 async def commit_state(state, server, client):
     for user_id in state:
         try:
-            member = server.get_member(user_id)
+            member = server.get_member(user_id)  # type: Member
+            if member is None:
+                member = await server.fetch_member(user_id)
+
             print("SET: {}({}) > {}".format(member.nick or str(member), user_id, state[user_id]))
             if member.top_role <= server.me.top_role:
                 if member.nick == state[user_id]:
                     continue
-                await client.change_nickname(member, state[user_id])
+                await member.edit(reason="Mass nickname change command called", nick=state[user_id])
         except Exception:
-            pass
+            traceback.print_exc()
 
 
 TEMP_PATH = "./state_{}.temp.json"

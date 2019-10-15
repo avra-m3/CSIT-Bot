@@ -7,5 +7,5 @@ services:
     volumes:
      - .:/app
     env_file: 
-     - ./discord.secret
+     - ./.env
     restart: always
