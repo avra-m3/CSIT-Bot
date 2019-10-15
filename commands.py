@@ -1,13 +1,24 @@
 import re
 
-from discord import Message, Member, Client, TextChannel, File
+from discord import Message, Member, Client, TextChannel, File, Embed, Color
 
 from Chat import Commands
 from Chat.Classes import ChatCommand
 from helpers import log_access, log_access_admin, log_state, reset_state_from_local, reset_state_from_remote, \
     commit_state, prevent_self_calls, ignore_bot_calls
 
-INSTRUCTIONS = """USING THE BRYCE BOT
+command_help = {
+    "*mention me*": "I tell you what this bot does, like I'm doing now, but better - just you watch",
+    "*mention token*": "I have an obsession with security 🤷",
+    "*mention boat*": "Have you heard about our annual boat party yet? If not, you will soon!",
+    r"***[Admin]*** *<value> it up!*": "Change the nickname of all users to the text before ' it up!', was funnier when this server was smaller",
+    "***[Admin]*** *!restore*": "Take the fun away and restore everyones names"
+}
+
+INSTRUCTIONS = """
+About ME
+
+USING THE BRYCE BOT
 COMMANDS:
     !about - You know how to use this one already clearly
     Requires the user be an administrator
@@ -23,7 +34,19 @@ COMMANDS:
 @prevent_self_calls
 @log_access("about")
 async def about(message: Message):
-    await message.channel.send(INSTRUCTIONS)
+    embed = Embed(title="How to interact with me",
+                  description="*A short course on social etiquette when talking to bots....*\n\n**What you can say:**",
+                  color=Color.from_rgb(208, 2, 27)
+                  )
+    embed.set_author(
+        name=message.guild.me.display_name,
+        icon_url=message.guild.me.avatar_url
+    )
+    list(
+        embed.add_field(name=key, value=value, inline=False)
+        for key, value in command_help.items()
+    )
+    await message.channel.send(embed=embed)
 
 
 @prevent_self_calls
@@ -88,7 +111,8 @@ async def welcome_user(member: Member):
             intro_message = """\nWe __highly__ recommend hopping over to {intro_channel} and saying hi {emoji}.""".format(
                 emoji="👋", intro_channel=channel.mention)
             break
-    message = """*Welcome* {user_mention}, you've joined the CSIT Society discord server! {say_hi_message}""".format(user_mention=member.mention, say_hi_message=intro_message)
+    message = """*Welcome* {user_mention}, you've joined the CSIT Society discord server! {say_hi_message}""".format(
+        user_mention=member.mention, say_hi_message=intro_message)
     await system_channel.send(message)
 
 
