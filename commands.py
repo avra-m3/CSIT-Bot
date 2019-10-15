@@ -80,11 +80,13 @@ async def restore(message: Message, client: Client):
             await message.channel.send("OP failed; Bad file")
 
 
-@log_access
 async def welcome_user(member: Member):
     channel = member.guild.system_channel
-    await channel.send("Welcome {mention}, welcome to the CSIT discord server, we highly encourage you to introduce "
-                       "yourself in #introductions. Promise we don't bite (well most of us anyway)")
+    message = """Welcome {mention} to the CSIT Society discord server! 
+    We highly recommend hopping over to #introductions and saying hi {emoji}. Promise we don't bite (well, 
+    most of us anyway).""".format(mention=member.mention, emoji="👋")
+    await channel.send(message)
+
 
 commands = [
     ChatCommand("token", Commands.token).alias("auth"),

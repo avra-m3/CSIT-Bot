@@ -33,7 +33,7 @@ async def on_ready():
 
 @client.event
 async def on_member_join(member: discord.Member):
-    welcome_user(member)
+    await welcome_user(member)
 
 
 @client.event
@@ -41,6 +41,9 @@ async def on_message(message: Message):
     command = message.content.lower().strip()
     # if command == "!update":
     # await update(message)
+    if command.startswith("!test_member_join"):
+        a = message.author
+        await on_member_join(a)
     if command.startswith("!about") or command.startswith("!help"):
         await about(message)
     elif command.endswith(' it up!'):
